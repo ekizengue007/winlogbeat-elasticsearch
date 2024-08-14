@@ -1,0 +1,8 @@
+It is recommended to create a new user for Winlogbeat instead of using the `elastic` user for the following reasons:
+1. **Least Privilege**: The `elastic` user is a superuser with broad permissions. Creating a dedicated user with restricted permissions reduces security risks in case of a compromise.
+2. **Role Segregation**: Separating roles prevents a single user from having excessive powers, enhancing security.
+3. **Tracking and Auditing**: Separate users make it easier to monitor and audit the specific activities of Winlogbeat.
+4. **Security Management**: Using the `elastic` user in various parts increases the risk of credential exposure. A dedicated user reduces the impact of potential leaks.
+
+Creating the Role
+
