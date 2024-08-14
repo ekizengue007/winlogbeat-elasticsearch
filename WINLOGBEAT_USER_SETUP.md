@@ -11,9 +11,12 @@ Creating the user
 ![image](https://github.com/user-attachments/assets/d831aaf0-98c0-442e-8e13-588174e6c099)
 
 Creating the API Key
+
 1. Go to dev tools
 ![image](https://github.com/user-attachments/assets/712da44e-ca20-440b-8e74-f1f3c56223f3)
+
 2. Past the code:
+
    POST /_security/api_key/grant
 {
   "grant_type": "password", 
