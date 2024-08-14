@@ -1,0 +1,405 @@
+###################### Winlogbeat Configuration Example ########################
+
+# This file is an example configuration file highlighting only the most common
+# options. The winlogbeat.reference.yml file from the same directory contains
+# all the supported options with more comments. You can use it as a reference.
+#
+# You can find the full configuration reference here:
+# https://www.elastic.co/guide/en/beats/winlogbeat/index.html
+
+# ======================== Winlogbeat specific options =========================
+
+# event_logs specifies a list of event logs to monitor as well as any
+# accompanying options. The YAML data type of event_logs is a list of
+# dictionaries.
+#
+# The supported keys are name, id, xml_query, tags, fields, fields_under_root,
+# forwarded, ignore_older, level, event_id, provider, and include_xml.
+# The xml_query key requires an id and must not be used with the name,
+# ignore_older, level, event_id, or provider keys. Please visit the
+# documentation for the complete details of each option.
+# https://go.es.io/WinlogbeatConfig
+
+winlogbeat.event_logs:
+  - name: Application
+
+  - name: System
+
+  - name: DFS Replication
+
+  - name: DNS Server
+
+  - name: Directory Service
+
+  - name: Security
+  
+  - name: Microsoft-Windows-GroupPolicy/Operational
+  
+  - name: Microsoft-Windows-LAPS/Operational
+  - name: Microsoft-Windows-TaskScheduler/Operational
+  - name: Microsoft-Windows-WindowsUpdateClient/Operational
+
+  - name: Microsoft-Windows-DNS-Server/Audit
+
+  - name: Microsoft-Windows-Sysmon/Operational
+
+  - name: Windows PowerShell
+    event_id: 400, 403, 600, 800
+
+  - name: Microsoft-Windows-PowerShell/Operational
+    event_id: 4103, 4104, 4105, 4106
+
+  - name: ForwardedEvents
+    tags: [forwarded]
+
+# ====================== Elasticsearch template settings =======================
+
+setup.template.settings:
+  index.number_of_shards: 1
+  #index.codec: best_compression
+  #_source.enabled: false
+
+
+# ================================== General ===================================
+
+# The name of the shipper that publishes the network data. It can be used to group
+# all the transactions sent by a single shipper in the web interface.
+#name:
+
+# The tags of the shipper are included in their field with each
+# transaction published.
+#tags: ["service-X", "web-tier"]
+
+# Optional fields that you can specify to add additional information to the
+# output.
+#fields:
+#  env: staging
+
+# ================================= Dashboards =================================
+# These settings control loading the sample dashboards to the Kibana index. Loading
+# the dashboards is disabled by default and can be enabled either by setting the
+# options here or by using the `setup` command.
+#setup.dashboards.enabled: false
+
+# The URL from where to download the dashboard archive. By default, this URL
+# has a value that is computed based on the Beat name and version. For released
+# versions, this URL points to the dashboard archive on the artifacts.elastic.co
+# website.
+#setup.dashboards.url:
+
+# =================================== Kibana ===================================
+
+# Starting with Beats version 6.0.0, the dashboards are loaded via the Kibana API.
+# This requires a Kibana endpoint configuration.
+setup.kibana:
+
+  # Kibana Host
+  # Scheme and port can be left out and will be set to the default (http and 5601)
+  # In case you specify and additional path, the scheme is required: http://localhost:5601/path
+  # IPv6 addresses should always be defined as: https://[2001:db8::1]:5601
+  #host: "localhost:5601"
+
+  # Kibana Space ID
+  # ID of the Kibana Space into which the dashboards should be loaded. By default,
+  # the Default Space will be used.
+  #space.id:
+
+  host: "10.0.2.161:5601"
+  protocol: "https"
+  #username: "ingest_winlogbeat"
+  #username: "elastic"
+  #password: "Pa$$w0rd"
+
+  ssl.enabled: true
+  #ssl.verification_mode: full
+  ssl.verification_mode: none
+  ssl.supported_protocols: [TLSv1.3]
+
+  api_key: "2khlTJEBNw3Oz43Htp_O:EcIUpGLTQ-i-e81kMwzwbw"
+
+  ssl.certificate_authorities: |
+    -----BEGIN CERTIFICATE-----
+    MIIDSTCCAjGgAwIBAgIUbA9VUSZPQx65mx2pgBjeK60m0y0wDQYJKoZIhvcNAQEL
+    BQAwNDEyMDAGA1UEAxMpRWxhc3RpYyBDZXJ0aWZpY2F0ZSBUb29sIEF1dG9nZW5l
+    cmF0ZWQgQ0EwHhcNMjQwNTIwMDgzNzEzWhcNMjcwNTIwMDgzNzEzWjA0MTIwMAYD
+    VQQDEylFbGFzdGljIENlcnRpZmljYXRlIFRvb2wgQXV0b2dlbmVyYXRlZCBDQTCC
+    ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAOYPRU0y3wegIW/CwuwzXm4m
+    hUYc9mpi98Aqe0FrSRi2zVIrMHFzQOifcfR1G7z8ikaQtg1ZJ6QBq3ZH92fUF3Y+
+    L0NiQMBbEY/5AJtQRn2kYl5et7TcDD825a1bVEYXBNtxGof1LXfcbtmaluXisZ6C
+    3FyPm0BiyNiceKEBJGlBVmMK1nf95H+wpWz+ibKBh+BuEF1faHFLViyN+lSq4BIZ
+    cIFCjX19HO4iSJf610ZBiNnaoJGeuFOyAdJd0dkRM5DXUcCVFN271fdDtuV8H8D2
+    HzrXzDmtfXIqFcV2FyqhViHxHS/DD23yYTT5y7j0UvGF1Sg4uufDyoFJyEgTACEC
+    AwEAAaNTMFEwHQYDVR0OBBYEFGpTgRtKdE0AlURZ6Lkn3+KtzFacMB8GA1UdIwQY
+    MBaAFGpTgRtKdE0AlURZ6Lkn3+KtzFacMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZI
+    hvcNAQELBQADggEBAHKeh2z+S1eaAWSl+ChTmh+iNLt3kNlMe3XhX9W2Ezgis5Bw
+    vkwtDyuW5hcbOfB7rLbqvT5c/6ZFXz4xuRXcIG2jYL2C73YR2kLEMLolfjeo5Drz
+    OiblDd5jX0auQBiIee4WBOfPlIWK/FbSDtQOVMNXlj4eHRNov4b55Gy9Ca4Haq6S
+    32Yw9gBTdkK8NxmAcy4lx22ItmawVmxoICZj6tVRQxmLftF8Q7YC2yf9ra/wyMSv
+    LIviIVwYyeJkAj+zOAlAuf0BerowKbwQUCy3laRXCXINgTM3KMLlWJDfVnCec+BF
+    r/eYFMsObsW7+8ZAQOWwF6rINYf5o7uIRgEGzzE=
+    -----END CERTIFICATE-----
+   
+  ssl.certificate: |
+    -----BEGIN CERTIFICATE-----
+    MIIDMjCCAhqgAwIBAgIUOyuJk4Dn5SVQ3OxX7kuFwpXUgwAwDQYJKoZIhvcNAQEL
+    BQAwNDEyMDAGA1UEAxMpRWxhc3RpYyBDZXJ0aWZpY2F0ZSBUb29sIEF1dG9nZW5l
+    cmF0ZWQgQ0EwHhcNMjQwODEzMTEwNDE3WhcNMjcwODEzMTEwNDE3WjANMQswCQYD
+    VQQDEwJDMDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJjqrGF0AFmi
+    +RG0A7Ha+rDZGFsUzK5JCSjJLZdFSePSTB+qxROgoGIzuS4xjlhmpMheTmcJrscl
+    kbBlyWZM7vPhRDs042rtEWkiobG6FRDbsE4VGEsZ1hUOICouEK4LKP2v+CdGIoa8
+    +mGQqbxLwaiDaxvmFBOAXm6//xUdArgc3jhVuWPQpLdbaSH+VcAXm/I+tUnRfhs9
+    vgGNcbI80KTWkaLipd8j8xlWPzw2HiiqAH+C8zGLHiC00HaNE994+uNSS+FiisSO
+    I+DNKSBEuert+56qAnyie0yw6SX5J8IJ3fXgfp0Z3EBURMQOlG3EHMJgg8Gf5yL5
+    0c/PpGAHxqUCAwEAAaNjMGEwHQYDVR0OBBYEFP5KuqfubTeLI3u37dUZDY2A7eli
+    MB8GA1UdIwQYMBaAFGpTgRtKdE0AlURZ6Lkn3+KtzFacMBQGA1UdEQQNMAuCCSou
+    a2xhYi5hbzAJBgNVHRMEAjAAMA0GCSqGSIb3DQEBCwUAA4IBAQDXGeyITkmxss++
+    KeuXbMsuLtllpPt0A8IYVlQvxiE+xFhjOpngBH4VSgBrR5ZweeIaXWuI3myLK5Sk
+    FFkW/jb9mSZ4rPbDAQA+XvIjG19oB8yLAd0kHtYyayysUza+nk6tY1iZpftQDkhK
+    +JP/BQZom7CI10dRk5yfZBBQrgoWeKZZFRxsmLE1JN5jeWUPxjhOimShdBgx+2Qh
+    Ct4Sk7fW5pavoDBmhATqRGCT2+djNxqgp+647JV8wDRt4+S06TzGNetLTJE+aNw3
+    v+SNxahMve1ZgckppIaYJ4pEDNoJ8MDYxYwQmexPog4Y1DOrlFCyXWL8/8MwJTbi
+    at5l2H32
+    -----END CERTIFICATE-----
+
+  ssl.key: |
+    -----BEGIN RSA PRIVATE KEY-----
+    MIIEogIBAAKCAQEAmOqsYXQAWaL5EbQDsdr6sNkYWxTMrkkJKMktl0VJ49JMH6rF
+    E6CgYjO5LjGOWGakyF5OZwmuxyWRsGXJZkzu8+FEOzTjau0RaSKhsboVENuwThUY
+    SxnWFQ4gKi4Qrgso/a/4J0Yihrz6YZCpvEvBqINrG+YUE4Bebr//FR0CuBzeOFW5
+    Y9Ckt1tpIf5VwBeb8j61SdF+Gz2+AY1xsjzQpNaRouKl3yPzGVY/PDYeKKoAf4Lz
+    MYseILTQdo0T33j641JL4WKKxI4j4M0pIES56u37nqoCfKJ7TLDpJfknwgnd9eB+
+    nRncQFRExA6UbcQcwmCDwZ/nIvnRz8+kYAfGpQIDAQABAoH/VukKEFld2ZRG+0jU
+    0MEkul6o+RtZObVI/2VYBCHdXR6pJVZprD4e6bF8DkUcIiI0ha0T4nweWhGAPEGd
+    tgcDyJi/rubgWmVi/94vCFQ6pNo32ikjJYwJoO3mWhLUaBbvtT/OSoQSG4JMzCbs
+    UZi8+Im41qJtxqevBEMbN2TFpt3gXnGcRGQpHEgLRcsDFOteoPWmgIIu7+8R9dvw
+    EgC3aqsQuRwKwedvaswMQKZxLdRDzZSvscdXu+M24OyNqj7Z/GPQ5Hrqd+wEF3Jh
+    q4+uZimKbPoNNO7ftzCXjrARx+x6byd5yw79ahXC7XxN9NN0h0mMEBzRg2tY0hPF
+    uzwBAoGBAL6KwBSyUOKU4H4SPJhWLHyIw3pYmjrErC6iIZBi1mDPKdzvJvFotC7I
+    tYWd5cfh6+/BIHmsOow3mM9sk61BT8FeWFg+hUzUYsZXtRFeMjc92jWMtCgW4ZCV
+    pc95P/WWcKyh40pnI+spLsJTSUTPnhBGmW51Z0rqTNpfUE6MQzoBAoGBAM1y9ZHZ
+    FXBRNSXodLP1CR5ylEBJydnd1wuZm5B/47uh+UYMRx1iTD0m3z8/1bZ3h58Gyy5C
+    hGiKktufSLIeEzPVfH/lM8rI3foaUHFIxVsog5rPEgtW0z/JZ89XxwxlrBcvr/JS
+    7mfmoT3MtRFCbXZOfCxvIREA1a4ABqY4C2SlAoGASmW4rBwX0vCYWwFZ4Y08H3/y
+    +3Fe/vVN2YN6oXrGA9S/nsFOLlJYkC/UGJDXaF1BF0MMIBXsYlVO+CaH3s0yi+j/
+    i60VtTL0Qkd6roZeCw2+hswih8ivWBnmPQU1wPl1kyI+sg1li+tvk3ablB+QswAt
+    5mA27ZxgV5+BprnDggECgYEAl2EKQoHiwxSDBcCHJQX6xx2D0O7NtSM5TYnMTyd8
+    hIdvZcasK6F/LVvUCQWfEch2/J0D3r0SVPkuBncSGHQCkCHQj2gxxkxFCwCSnzYQ
+    fP+YINxMnmBGXWyoeeVie+b6a0cu7G1gztvnmOKZ0/LPNunTouXrRl0IFSJdw+Ht
+    uyUCgYEAqza0f65Tkf/Kh6II0CTKVyl8oSLGhYhOvwFxJxjH9WwP3u1IP76sSYkl
+    3YtRpVxpisGRawBi6xBDWlNeNl6y5VUpWAtHuIf1y+lbRRYUGKvqPjAQhZSlxorB
+    /0aSASFr0T9xV8ylMR/aHeVf7PyAXEpzUAwibZPF29gK3btP/X0=
+    -----END RSA PRIVATE KEY-----
+
+# =============================== Elastic Cloud ================================
+
+# These settings simplify using Winlogbeat with the Elastic Cloud (https://cloud.elastic.co/).
+
+# The cloud.id setting overwrites the `output.elasticsearch.hosts` and
+# `setup.kibana.host` options.
+# You can find the `cloud.id` in the Elastic Cloud web UI.
+#cloud.id:
+
+# The cloud.auth setting overwrites the `output.elasticsearch.username` and
+# `output.elasticsearch.password` settings. The format is `<user>:<pass>`.
+#cloud.auth:
+
+# ================================== Outputs ===================================
+
+# Configure what output to use when sending the data collected by the beat.
+
+# ---------------------------- Elasticsearch Output ----------------------------
+output.elasticsearch:
+  # Array of hosts to connect to.
+
+  hosts: ["10.0.2.161:9200", "10.0.2.163:9200"]
+  #username: "ingest_winlogbeat"
+  #username: "elastic"
+  #password: "Pa$$w0rd"
+
+  # Protocol - either `http` (default) or `https`.
+  protocol: "https"
+
+  api_key: "2khlTJEBNw3Oz43Htp_O:EcIUpGLTQ-i-e81kMwzwbw"
+
+  ssl.certificate_authorities: |
+    -----BEGIN CERTIFICATE-----
+    MIIDSTCCAjGgAwIBAgIUbA9VUSZPQx65mx2pgBjeK60m0y0wDQYJKoZIhvcNAQEL
+    BQAwNDEyMDAGA1UEAxMpRWxhc3RpYyBDZXJ0aWZpY2F0ZSBUb29sIEF1dG9nZW5l
+    cmF0ZWQgQ0EwHhcNMjQwNTIwMDgzNzEzWhcNMjcwNTIwMDgzNzEzWjA0MTIwMAYD
+    VQQDEylFbGFzdGljIENlcnRpZmljYXRlIFRvb2wgQXV0b2dlbmVyYXRlZCBDQTCC
+    ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAOYPRU0y3wegIW/CwuwzXm4m
+    hUYc9mpi98Aqe0FrSRi2zVIrMHFzQOifcfR1G7z8ikaQtg1ZJ6QBq3ZH92fUF3Y+
+    L0NiQMBbEY/5AJtQRn2kYl5et7TcDD825a1bVEYXBNtxGof1LXfcbtmaluXisZ6C
+    3FyPm0BiyNiceKEBJGlBVmMK1nf95H+wpWz+ibKBh+BuEF1faHFLViyN+lSq4BIZ
+    cIFCjX19HO4iSJf610ZBiNnaoJGeuFOyAdJd0dkRM5DXUcCVFN271fdDtuV8H8D2
+    HzrXzDmtfXIqFcV2FyqhViHxHS/DD23yYTT5y7j0UvGF1Sg4uufDyoFJyEgTACEC
+    AwEAAaNTMFEwHQYDVR0OBBYEFGpTgRtKdE0AlURZ6Lkn3+KtzFacMB8GA1UdIwQY
+    MBaAFGpTgRtKdE0AlURZ6Lkn3+KtzFacMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZI
+    hvcNAQELBQADggEBAHKeh2z+S1eaAWSl+ChTmh+iNLt3kNlMe3XhX9W2Ezgis5Bw
+    vkwtDyuW5hcbOfB7rLbqvT5c/6ZFXz4xuRXcIG2jYL2C73YR2kLEMLolfjeo5Drz
+    OiblDd5jX0auQBiIee4WBOfPlIWK/FbSDtQOVMNXlj4eHRNov4b55Gy9Ca4Haq6S
+    32Yw9gBTdkK8NxmAcy4lx22ItmawVmxoICZj6tVRQxmLftF8Q7YC2yf9ra/wyMSv
+    LIviIVwYyeJkAj+zOAlAuf0BerowKbwQUCy3laRXCXINgTM3KMLlWJDfVnCec+BF
+    r/eYFMsObsW7+8ZAQOWwF6rINYf5o7uIRgEGzzE=
+    -----END CERTIFICATE-----
+   
+  ssl.certificate: |
+    -----BEGIN CERTIFICATE-----
+    MIIDMjCCAhqgAwIBAgIUOyuJk4Dn5SVQ3OxX7kuFwpXUgwAwDQYJKoZIhvcNAQEL
+    BQAwNDEyMDAGA1UEAxMpRWxhc3RpYyBDZXJ0aWZpY2F0ZSBUb29sIEF1dG9nZW5l
+    cmF0ZWQgQ0EwHhcNMjQwODEzMTEwNDE3WhcNMjcwODEzMTEwNDE3WjANMQswCQYD
+    VQQDEwJDMDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJjqrGF0AFmi
+    +RG0A7Ha+rDZGFsUzK5JCSjJLZdFSePSTB+qxROgoGIzuS4xjlhmpMheTmcJrscl
+    kbBlyWZM7vPhRDs042rtEWkiobG6FRDbsE4VGEsZ1hUOICouEK4LKP2v+CdGIoa8
+    +mGQqbxLwaiDaxvmFBOAXm6//xUdArgc3jhVuWPQpLdbaSH+VcAXm/I+tUnRfhs9
+    vgGNcbI80KTWkaLipd8j8xlWPzw2HiiqAH+C8zGLHiC00HaNE994+uNSS+FiisSO
+    I+DNKSBEuert+56qAnyie0yw6SX5J8IJ3fXgfp0Z3EBURMQOlG3EHMJgg8Gf5yL5
+    0c/PpGAHxqUCAwEAAaNjMGEwHQYDVR0OBBYEFP5KuqfubTeLI3u37dUZDY2A7eli
+    MB8GA1UdIwQYMBaAFGpTgRtKdE0AlURZ6Lkn3+KtzFacMBQGA1UdEQQNMAuCCSou
+    a2xhYi5hbzAJBgNVHRMEAjAAMA0GCSqGSIb3DQEBCwUAA4IBAQDXGeyITkmxss++
+    KeuXbMsuLtllpPt0A8IYVlQvxiE+xFhjOpngBH4VSgBrR5ZweeIaXWuI3myLK5Sk
+    FFkW/jb9mSZ4rPbDAQA+XvIjG19oB8yLAd0kHtYyayysUza+nk6tY1iZpftQDkhK
+    +JP/BQZom7CI10dRk5yfZBBQrgoWeKZZFRxsmLE1JN5jeWUPxjhOimShdBgx+2Qh
+    Ct4Sk7fW5pavoDBmhATqRGCT2+djNxqgp+647JV8wDRt4+S06TzGNetLTJE+aNw3
+    v+SNxahMve1ZgckppIaYJ4pEDNoJ8MDYxYwQmexPog4Y1DOrlFCyXWL8/8MwJTbi
+    at5l2H32
+    -----END CERTIFICATE-----
+
+
+  ssl.key: |
+    -----BEGIN RSA PRIVATE KEY-----
+    MIIEogIBAAKCAQEAmOqsYXQAWaL5EbQDsdr6sNkYWxTMrkkJKMktl0VJ49JMH6rF
+    E6CgYjO5LjGOWGakyF5OZwmuxyWRsGXJZkzu8+FEOzTjau0RaSKhsboVENuwThUY
+    SxnWFQ4gKi4Qrgso/a/4J0Yihrz6YZCpvEvBqINrG+YUE4Bebr//FR0CuBzeOFW5
+    Y9Ckt1tpIf5VwBeb8j61SdF+Gz2+AY1xsjzQpNaRouKl3yPzGVY/PDYeKKoAf4Lz
+    MYseILTQdo0T33j641JL4WKKxI4j4M0pIES56u37nqoCfKJ7TLDpJfknwgnd9eB+
+    nRncQFRExA6UbcQcwmCDwZ/nIvnRz8+kYAfGpQIDAQABAoH/VukKEFld2ZRG+0jU
+    0MEkul6o+RtZObVI/2VYBCHdXR6pJVZprD4e6bF8DkUcIiI0ha0T4nweWhGAPEGd
+    tgcDyJi/rubgWmVi/94vCFQ6pNo32ikjJYwJoO3mWhLUaBbvtT/OSoQSG4JMzCbs
+    UZi8+Im41qJtxqevBEMbN2TFpt3gXnGcRGQpHEgLRcsDFOteoPWmgIIu7+8R9dvw
+    EgC3aqsQuRwKwedvaswMQKZxLdRDzZSvscdXu+M24OyNqj7Z/GPQ5Hrqd+wEF3Jh
+    q4+uZimKbPoNNO7ftzCXjrARx+x6byd5yw79ahXC7XxN9NN0h0mMEBzRg2tY0hPF
+    uzwBAoGBAL6KwBSyUOKU4H4SPJhWLHyIw3pYmjrErC6iIZBi1mDPKdzvJvFotC7I
+    tYWd5cfh6+/BIHmsOow3mM9sk61BT8FeWFg+hUzUYsZXtRFeMjc92jWMtCgW4ZCV
+    pc95P/WWcKyh40pnI+spLsJTSUTPnhBGmW51Z0rqTNpfUE6MQzoBAoGBAM1y9ZHZ
+    FXBRNSXodLP1CR5ylEBJydnd1wuZm5B/47uh+UYMRx1iTD0m3z8/1bZ3h58Gyy5C
+    hGiKktufSLIeEzPVfH/lM8rI3foaUHFIxVsog5rPEgtW0z/JZ89XxwxlrBcvr/JS
+    7mfmoT3MtRFCbXZOfCxvIREA1a4ABqY4C2SlAoGASmW4rBwX0vCYWwFZ4Y08H3/y
+    +3Fe/vVN2YN6oXrGA9S/nsFOLlJYkC/UGJDXaF1BF0MMIBXsYlVO+CaH3s0yi+j/
+    i60VtTL0Qkd6roZeCw2+hswih8ivWBnmPQU1wPl1kyI+sg1li+tvk3ablB+QswAt
+    5mA27ZxgV5+BprnDggECgYEAl2EKQoHiwxSDBcCHJQX6xx2D0O7NtSM5TYnMTyd8
+    hIdvZcasK6F/LVvUCQWfEch2/J0D3r0SVPkuBncSGHQCkCHQj2gxxkxFCwCSnzYQ
+    fP+YINxMnmBGXWyoeeVie+b6a0cu7G1gztvnmOKZ0/LPNunTouXrRl0IFSJdw+Ht
+    uyUCgYEAqza0f65Tkf/Kh6II0CTKVyl8oSLGhYhOvwFxJxjH9WwP3u1IP76sSYkl
+    3YtRpVxpisGRawBi6xBDWlNeNl6y5VUpWAtHuIf1y+lbRRYUGKvqPjAQhZSlxorB
+    /0aSASFr0T9xV8ylMR/aHeVf7PyAXEpzUAwibZPF29gK3btP/X0=
+    -----END RSA PRIVATE KEY-----
+    
+  ssl.enabled: true
+  #ssl.verification_mode: full
+  ssl.verification_mode: none
+  ssl.supported_protocols: [TLSv1.3]
+
+  # Protocol - either `http` (default) or `https`.
+  #protocol: "https"
+
+  # Authentication credentials - either API key or username/password.
+# api_key: "YitAXYUBAiWHaAkJifGz:QYBe8yyHQoqWESKwNvndUQ"
+#  api_key: "ofZzYocBFZHuSHm7CjhY:Ze_T_dvSQcmJQa808x0CRQ"
+
+
+  # Protocol - either `http` (default) or `https`.
+  #protocol: "https"
+
+  # Authentication credentials - either API key or username/password.
+  #api_key: "id:api_key"
+
+  # Pipeline to route events to security, sysmon, or powershell pipelines.
+  pipeline: "winlogbeat-%{[agent.version]}-routing"
+
+# ------------------------------ Logstash Output -------------------------------
+#output.logstash:
+  # The Logstash hosts
+  #hosts: ["localhost:5044"]
+
+  # Optional SSL. By default is off.
+  # List of root certificates for HTTPS server verifications
+  #ssl.certificate_authorities: ["/etc/pki/root/ca.pem"]
+
+  # Certificate for SSL client authentication
+  #ssl.certificate: "/etc/pki/client/cert.pem"
+
+  # Client Certificate Key
+  #ssl.key: "/etc/pki/client/cert.key"
+
+# ================================= Processors =================================
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_cloud_metadata: ~
+
+# ================================== Logging ===================================
+
+# Sets log level. The default log level is info.
+# Available log levels are: error, warning, info, debug
+#logging.level: debug
+
+logging.level: warning
+
+# At debug level, you can selectively enable logging only for some components.
+# To enable all selectors, use ["*"]. Examples of other selectors are "beat",
+# "publisher", "service".
+#logging.selectors: ["*"]
+
+# ============================= X-Pack Monitoring ==============================
+# Winlogbeat can export internal metrics to a central Elasticsearch monitoring
+# cluster.  This requires xpack monitoring to be enabled in Elasticsearch.  The
+# reporting is disabled by default.
+
+# Set to true to enable the monitoring reporter.
+#monitoring.enabled: false
+
+# Sets the UUID of the Elasticsearch cluster under which monitoring data for this
+# Winlogbeat instance will appear in the Stack Monitoring UI. If output.elasticsearch
+# is enabled, the UUID is derived from the Elasticsearch cluster referenced by output.elasticsearch.
+#monitoring.cluster_uuid:
+
+# Uncomment to send the metrics to Elasticsearch. Most settings from the
+# Elasticsearch outputs are accepted here as well.
+# Note that the settings should point to your Elasticsearch *monitoring* cluster.
+# Any setting that is not set is automatically inherited from the Elasticsearch
+# output configuration, so if you have the Elasticsearch output configured such
+# that it is pointing to your Elasticsearch monitoring cluster, you can simply
+# uncomment the following line.
+#monitoring.elasticsearch:
+
+# ============================== Instrumentation ===============================
+
+# Instrumentation support for the winlogbeat.
+#instrumentation:
+    # Set to true to enable instrumentation of winlogbeat.
+    #enabled: false
+
+    # Environment in which winlogbeat is running on (eg: staging, production, etc.)
+    #environment: ""
+
+    # APM Server hosts to report instrumentation results to.
+    #hosts:
+    #  - http://localhost:8200
+
+    # API Key for the APM Server(s).
+    # If api_key is set then secret_token will be ignored.
+    #api_key:
+
+    # Secret token for the APM Server(s).
+    #secret_token:
+
+
+# ================================= Migration ==================================
+
+# This allows to enable 6.7 migration aliases
+#migration.6_to_7.enabled: true
+
+http.enabled: true
+http.port: 5069
+monitoring.enabled: false
