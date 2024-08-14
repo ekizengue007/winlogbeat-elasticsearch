@@ -5,4 +5,5 @@ It is recommended to create a new user for Winlogbeat instead of using the `elas
 4. **Security Management**: Using the `elastic` user in various parts increases the risk of credential exposure. A dedicated user reduces the impact of potential leaks.
 
 Creating the Role
+![image](https://github.com/user-attachments/assets/066f3100-e02f-40e5-9417-1fb282817261)
 
