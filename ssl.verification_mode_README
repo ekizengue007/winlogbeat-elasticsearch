@@ -1,0 +1,11 @@
+ssl.verification_mode: 
+1. none:
+  Use Case: This disables SSL/TLS certificate verification entirely. You might use this in a testing or development environment where security is not a concern, or if you are connecting to a server with a self-signed certificate that you don't want to validate.
+  Considerations: Using none in production is generally not recommended because it makes the connection vulnerable to man-in-the-middle attacks.
+2. certificate:
+  Use Case: This verifies that the server's certificate is valid and has been issued by a trusted Certificate Authority (CA). It does not check whether the certificate's Common Name (CN) matches the hostname of the server.
+  Considerations: This mode is suitable when you trust the CA but do not want to enforce strict hostname matching. This can be useful in environments where the server’s hostname might change or if you are using a certificate with a wildcard.
+3. full:
+  Use Case: This is the most secure option. It verifies both the certificate’s validity (signed by a trusted CA) and that the server’s hostname matches the certificate’s Common Name (CN) or Subject Alternative Name (SAN).
+  Considerations: Use full in production environments to ensure that your connections are secure and that you are connecting to the correct server.
+
