@@ -1,0 +1,336 @@
+###################### Winlogbeat Configuration Example ########################
+
+# This file is an example configuration file highlighting only the most common
+# options. The winlogbeat.reference.yml file from the same directory contains
+# all the supported options with more comments. You can use it as a reference.
+#
+# You can find the full configuration reference here:
+# https://www.elastic.co/guide/en/beats/winlogbeat/index.html
+
+# ======================== Winlogbeat specific options =========================
+
+# event_logs specifies a list of event logs to monitor as well as any
+# accompanying options. The YAML data type of event_logs is a list of
+# dictionaries.
+#
+# The supported keys are name, id, xml_query, tags, fields, fields_under_root,
+# forwarded, ignore_older, level, event_id, provider, and include_xml.
+# The xml_query key requires an id and must not be used with the name,
+# ignore_older, level, event_id, or provider keys. Please visit the
+# documentation for the complete details of each option.
+# https://go.es.io/WinlogbeatConfig
+
+winlogbeat.event_logs:
+  - name: Application
+    ignore_older: 72h
+
+  - name: System
+
+  - name: Security
+    processors:
+      - script:
+          lang: javascript
+          id: security
+          file: ${path.home}/module/security/config/winlogbeat-security.js
+
+  - name: Microsoft-Windows-Sysmon/Operational
+    processors:
+      - script:
+          lang: javascript
+          id: sysmon
+          file: ${path.home}/module/sysmon/config/winlogbeat-sysmon.js
+
+  - name: Windows PowerShell
+    event_id: 400, 403, 600, 800
+    processors:
+      - script:
+          lang: javascript
+          id: powershell
+          file: ${path.home}/module/powershell/config/winlogbeat-powershell.js
+
+  - name: Microsoft-Windows-PowerShell/Operational
+    event_id: 4103, 4104, 4105, 4106
+    processors:
+      - script:
+          lang: javascript
+          id: powershell
+          file: ${path.home}/module/powershell/config/winlogbeat-powershell.js
+
+  - name: ForwardedEvents
+    tags: [forwarded]
+    processors:
+      - script:
+          when.equals.winlog.channel: Security
+          lang: javascript
+          id: security
+          file: ${path.home}/module/security/config/winlogbeat-security.js
+      - script:
+          when.equals.winlog.channel: Microsoft-Windows-Sysmon/Operational
+          lang: javascript
+          id: sysmon
+          file: ${path.home}/module/sysmon/config/winlogbeat-sysmon.js
+      - script:
+          when.equals.winlog.channel: Windows PowerShell
+          lang: javascript
+          id: powershell
+          file: ${path.home}/module/powershell/config/winlogbeat-powershell.js
+      - script:
+          when.equals.winlog.channel: Microsoft-Windows-PowerShell/Operational
+          lang: javascript
+          id: powershell
+          file: ${path.home}/module/powershell/config/winlogbeat-powershell.js
+
+# ====================== Elasticsearch template settings =======================
+
+setup.template.settings:
+  index.number_of_shards: 1
+  #index.codec: best_compression
+  #_source.enabled: false
+
+setup.template.enabled: true
+setup.template.name: "metricbeat-%{[agent.version]}"
+setup.template.pattern: "metricbeat-%{[agent.version]}-*"
+
+
+# ================================== General ===================================
+
+# The name of the shipper that publishes the network data. It can be used to group
+# all the transactions sent by a single shipper in the web interface.
+#name:
+
+# The tags of the shipper are included in their own field with each
+# transaction published.
+#tags: ["service-X", "web-tier"]
+
+# Optional fields that you can specify to add additional information to the
+# output.
+#fields:
+#  env: staging
+
+# ================================= Dashboards =================================
+# These settings control loading the sample dashboards to the Kibana index. Loading
+# the dashboards is disabled by default and can be enabled either by setting the
+# options here or by using the `setup` command.
+#setup.dashboards.enabled: false
+
+# The URL from where to download the dashboards archive. By default this URL
+# has a value which is computed based on the Beat name and version. For released
+# versions, this URL points to the dashboard archive on the artifacts.elastic.co
+# website.
+#setup.dashboards.url:
+
+# =================================== Kibana ===================================
+
+# Starting with Beats version 6.0.0, the dashboards are loaded via the Kibana API.
+# This requires a Kibana endpoint configuration.
+setup.kibana:
+
+  # Kibana Host
+  # Scheme and port can be left out and will be set to the default (http and 5601)
+  # In case you specify and additional path, the scheme is required: http://localhost:5601/path
+  # IPv6 addresses should always be defined as: https://[2001:db8::1]:5601
+  host: "http://teste-soc-elk:5601"
+
+  # Kibana Space ID
+  # ID of the Kibana Space into which the dashboards should be loaded. By default,
+  # the Default Space will be used.
+  #space.id:
+
+# =============================== Elastic Cloud ================================
+
+# These settings simplify using Winlogbeat with the Elastic Cloud (https://cloud.elastic.co/).
+
+# The cloud.id setting overwrites the `output.elasticsearch.hosts` and
+# `setup.kibana.host` options.
+# You can find the `cloud.id` in the Elastic Cloud web UI.
+#cloud.id:                                                                                                  
+
+# The cloud.auth setting overwrites the `output.elasticsearch.username` and
+# `output.elasticsearch.password` settings. The format is `<user>:<pass>`.
+#cloud.auth:
+
+# ================================== Outputs ===================================
+
+# Configure what output to use when sending the data collected by the beat.
+
+# ---------------------------- Elasticsearch Output ----------------------------
+output.elasticsearch:
+  # Array of hosts to connect to.
+  hosts: ["teste-soc-elk:9200"]
+
+  # Protocol - either `http` (default) or `https`. 
+  protocol: "https"
+
+  # Authentication credentials - either API key or username/password.
+  #api_key: "id:api_key"
+  username: "elastic"
+  password: "Tj7rKzxOJjjVP3xiF7uT"
+
+  ssl.certificate_authorities: |
+    -----BEGIN CERTIFICATE-----
+    MIIDSTCCAjGgAwIBAgIUW+vidqm366U6HAVblf4cWvSxr9MwDQYJKoZIhvcNAQEL
+    BQAwNDEyMDAGA1UEAxMpRWxhc3RpYyBDZXJ0aWZpY2F0ZSBUb29sIEF1dG9nZW5l
+    cmF0ZWQgQ0EwHhcNMjQwOTA1MDcxNjM4WhcNMjcwOTA1MDcxNjM4WjA0MTIwMAYD
+    VQQDEylFbGFzdGljIENlcnRpZmljYXRlIFRvb2wgQXV0b2dlbmVyYXRlZCBDQTCC
+    ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKzMiCETabUSt9HuRoIHeZBA
+    AZWkQPeYkhJ1Ro3mYtUgOWeduBkVgjV+FrBsvyl/EjbMS+OiArp2pUL6Jqk12Z3r
+    Io2ldD/c/tDEPbZoRx6rNySzj2b0ln8CIyA8uagxP+I5R4ZigKp14BZqdFteS++C
+    pf2ycj7DnWEVQE1Gx5Hsx99WlJQ/j7Im5TkKmbAfM/5uETYIQHYhSX4+y0crS2vL
+    N3kZJrvJ0DeO/hCB64s0vbZlW5D11e//sHE6ZSqR8Fm2bryp1Ltvjcyx9mh+HRl0
+    VvmG0BF/al2MthlXy4UqHo+XfdWckW4duGQ+9iVIRuz/R8QisGG6n2piZ4gwUz0C
+    AwEAAaNTMFEwHQYDVR0OBBYEFLRigJ8MOm8ppoHso8E7gKJyiWY7MB8GA1UdIwQY
+    MBaAFLRigJ8MOm8ppoHso8E7gKJyiWY7MA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZI
+    hvcNAQELBQADggEBAI2pZPCCns5FEZdnQeAPjU+dhLBr6FCuAibdu++tLBa1Ko16
+    lIVHXgk407bbXWmhPNPZSSUZ+hobIBCdGex7ECMBYjx7nE6UFe0sEguWvW0+Lw8E
+    iys9wkY1faBrfy6S4fbnkYFo6CCiAXdF/o32SCkrhckgyBRhENKiDY9zgvlSqGrY
+    evRBrmLqLXjr8l2YQBqC6DmhXEsoq5PLUuE9B8xCSV8s7q11TwmbR+BoS5W/ECSo
+    ebx438MSFmpS+WMwj6Zi9k0eKuxoGsChEPaRtrEOuVSWgiQaFwOsBymnbx98OYfH
+    rWO3UEA6DVBiusf9DceZU4lzdabuNym3LS//SjY=
+    -----END CERTIFICATE-----
+
+
+  ssl.certificate: |
+    -----BEGIN CERTIFICATE-----
+    MIIDRTCCAi2gAwIBAgIVANI8LL35lCvuw+58NIAdY3w6fFamMA0GCSqGSIb3DQEB
+    CwUAMDQxMjAwBgNVBAMTKUVsYXN0aWMgQ2VydGlmaWNhdGUgVG9vbCBBdXRvZ2Vu
+    ZXJhdGVkIENBMB4XDTI0MDkwNzE4MzEzNloXDTI3MDkwNzE4MzEzNlowEzERMA8G
+    A1UEAxMIaW5zdGFuY2UwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC8
+    iV8xzHKcVe1xQEF3MSydOW/6TgVhEUUWVtOMbc8o/A5Tl035mysmvQv23JCtQBWf
+    PRFmsC99W/7scp4fZ/V7DZ0Xn0OisSI3aWMCFZRtx8qB6/igAU6s6XbCpHI+gcIr
+    PKNnPOAlTvGPXW723fwm1NDfdpWX+B8ugnOYPUuWr4y9Abzc7bYW6/dnai/4kZa/
+    j/XMeK0zi5PyCvL7VvCCMB9U0ARCGli6tkZmNVQHEQ5Drhy+VQb+LBMnq1EKCmh0
+    YkFSExfeZHVPTxUChq3dqHlNJ4KkmBptYk+l7a54J4ATR8REEfxMei1BqNYTTO5W
+    jGkNpSdhe1DEzK5PKtwxAgMBAAGjbzBtMB0GA1UdDgQWBBQtCwLBVmFuG8oVsywp
+    rsmMJR+z6TAfBgNVHSMEGDAWgBS0YoCfDDpvKaaB7KPBO4CicolmOzAgBgNVHREE
+    GTAXghUqLnNldmVua2luZ2RvbXMubG9jYWwwCQYDVR0TBAIwADANBgkqhkiG9w0B
+    AQsFAAOCAQEAmvre6oiBkNHz/G1wry+Rxo/QoWjUoErEp7y02rKER4qVoOF9UsUv
+    E2hk8WTcRlDaXqamdHO+3gTtSGXuyJ2ZWoF+L5o28PH/kXGrj1KuWmNWXhk+aZ5a
+    uOHR08plEB1Sk2rY4Q2LxNrQi4rD1KnQA0a6w5MQG9mw9xG1m6BB2QvnQWMEpYnX
+    86GNn6TFLvWBeglHVckvF8Vc3Ixmzddalobmo9c3lAMjRxC6NmVWCJdfRwr8OYmy
+    aLtMyesWMrJA9DKQJkQUd2LdOYADVJaRHLmldm8d0lYhRHfEyeZEg+nnqpxis9P6
+    EXnj0b4N5SSxIQfVgksVyK2ttwLRFYJ+Cw==
+    -----END CERTIFICATE-----
+
+  ssl.key: |
+    -----BEGIN RSA PRIVATE KEY-----
+    MIIEpAIBAAKCAQEAvIlfMcxynFXtcUBBdzEsnTlv+k4FYRFFFlbTjG3PKPwOU5dN
+    +ZsrJr0L9tyQrUAVnz0RZrAvfVv+7HKeH2f1ew2dF59DorEiN2ljAhWUbcfKgev4
+    oAFOrOl2wqRyPoHCKzyjZzzgJU7xj11u9t38JtTQ33aVl/gfLoJzmD1Llq+MvQG8
+    3O22Fuv3Z2ov+JGWv4/1zHitM4uT8gry+1bwgjAfVNAEQhpYurZGZjVUBxEOQ64c
+    vlUG/iwTJ6tRCgpodGJBUhMX3mR1T08VAoat3ah5TSeCpJgabWJPpe2ueCeAE0fE
+    RBH8THotQajWE0zuVoxpDaUnYXtQxMyuTyrcMQIDAQABAoIBAAHCDD0OTv/Q/xHl
+    rLzAa4ksnqVQ/W1Zw0csmvkcnANhzTjvgnRMFzNvVEK2J+nkumi7V8sPgaBRSpyt
+    dwCkizCnQtMPWi0oZWhgv/CwK3qMMWRE76ac6W5MNgCvW5gzMTMYgsnHZnDPioAf
+    vpVjSdt8mxoSBKy6zTvJJ5NvRrqkPomoJjGinxveEREWCuUORtdQJsvdDIVRQnl+
+    WwVL+WQz9U3cAq/0LUWM1jjdy97NhuOBvMv3I1IcqKya7C1ZyxhPCt/F+sbPooh5
+    yE4S0tfiBYxiq/x5ObKREGm4pzYp2W8OjjWfDtA52gMmOYpyV1csdASV+YTvCkL5
+    8k2TnlECgYEA/3Izp4siXcdtxYsF2w01XAbz8sRgfdsWt10g/W70iUY/R+0MCiF8
+    54IozHJI+Ps33PG9IkIVg01yN603U3qy8vdweK8NNIDBMthrTG8eI3XRTI7xoJ3d
+    SyerRHlmta3yhtVp+ytrCe0/YdMhLZTEUA2Msjt44++VSAG2OxCRyvkCgYEAvPIH
+    UfvjcX+mywZToZzpBX0iT2nletCoUJKZtsqrJuVmd1b5P7UGl94oVpsg98LYr3kj
+    UrIXKYSaXejQW1DKPc0wxUYj/TeNmwT/L4mIuDDXZ6wc3bAFfa2gVXgMze1tUVnG
+    /OVNl1sLOmFrgLznyTnqY81d0jKkHAqkzlVr8PkCgYEAycI2wEdpjm586kEjD9//
+    3D71oTKwD9fiulNJQkLHzED6rGGzV7EZiXVJqik+L8GkXtNkklFl0n5yDz217C6G
+    dtcvM3L32Bc2AWXkYcuGH3XoKTLh7/2gEsMzR/MnR6orW4nmmmaxtXZ40FhE5U6S
+    O7RoA0Jr+oR6ARSxDTfKH2kCgYApLyQzVZE88xMbG9Ts3DPak20AHFf9zi9x6JKC
+    ymhGASi1iIqpvT6jqbPnNMcZ2im7Dc+KPfFYhmPTZmTMEq8Si4A+78v2bL579Lne
+    1b6sT1EUcuqT08NOoqLZHmLEHCWA3u3FwAGKpTisUAHLvOFU9j/F40S5BXrJ9fP4
+    WZw+mQKBgQDq5DhQrBUQOij5HdMVcVpquLRrygLPZ/L/DvXYppuOwt+41LzULEZJ
+    G3WmzMlmu1SzPp3iAMxLDUfH2OwcWdzdoDYwdVBUob69lZ8iyQ2cQ+6uYLDADSDw
+    dWQ0/7QPk8meIf8T934ekt7xYsLflH0fBKnBjCA8Qtu71IaAewnK7A==
+    -----END RSA PRIVATE KEY-----
+
+
+  index: "winlogbeat-%{[agent.version]}-%{+yyyy-MM-dd}"
+
+  ssl.enabled: true
+  ssl.verification_mode: full
+  ssl.supported_protocols: [TLSv1.3]
+
+
+# ------------------------------ Logstash Output -------------------------------
+#output.logstash:
+  # The Logstash hosts
+  #hosts: ["localhost:5044"]
+
+  # Optional SSL. By default is off.
+  # List of root certificates for HTTPS server verifications
+  #ssl.certificate_authorities: ["/etc/pki/root/ca.pem"]
+
+  # Certificate for SSL client authentication
+  #ssl.certificate: "/etc/pki/client/cert.pem"
+
+  # Client Certificate Key
+  #ssl.key: "/etc/pki/client/cert.key"
+
+# ================================= Processors =================================
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_cloud_metadata: ~
+
+# ================================== Logging ===================================
+
+# Sets log level. The default log level is info.
+# Available log levels are: error, warning, info, debug
+#logging.level: warning
+
+logging.to_files: true
+logging.files:
+  path: C:\ProgramData\winlogbeat\Logs
+logging.level: warning
+
+# At debug level, you can selectively enable logging only for some components.
+# To enable all selectors use ["*"]. Examples of other selectors are "beat",
+# "publisher", "service".
+#logging.selectors: ["*"]
+
+# ============================= X-Pack Monitoring ==============================
+# Winlogbeat can export internal metrics to a central Elasticsearch monitoring
+# cluster.  This requires xpack monitoring to be enabled in Elasticsearch.  The
+# reporting is disabled by default.
+
+# Set to true to enable the monitoring reporter.
+#monitoring.enabled: false
+
+# Sets the UUID of the Elasticsearch cluster under which monitoring data for this
+# Winlogbeat instance will appear in the Stack Monitoring UI. If output.elasticsearch
+# is enabled, the UUID is derived from the Elasticsearch cluster referenced by output.elasticsearch.
+#monitoring.cluster_uuid:
+
+# Uncomment to send the metrics to Elasticsearch. Most settings from the
+# Elasticsearch output are accepted here as well.
+# Note that the settings should point to your Elasticsearch *monitoring* cluster.
+# Any setting that is not set is automatically inherited from the Elasticsearch
+# output configuration, so if you have the Elasticsearch output configured such
+# that it is pointing to your Elasticsearch monitoring cluster, you can simply
+# uncomment the following line.
+#monitoring.elasticsearch:
+
+# ============================== Instrumentation ===============================
+
+# Instrumentation support for the winlogbeat.
+#instrumentation:
+    # Set to true to enable instrumentation of winlogbeat.
+    #enabled: false
+
+    # Environment in which winlogbeat is running on (eg: staging, production, etc.)
+    #environment: ""
+
+    # APM Server hosts to report instrumentation results to.
+    #hosts:
+    #  - http://localhost:8200
+
+    # API Key for the APM Server(s).
+    # If api_key is set then secret_token will be ignored.
+    #api_key:
+
+    # Secret token for the APM Server(s).
+    #secret_token:
+
+
+# ================================= Migration ==================================
+
+# This allows to enable 6.7 migration aliases
+#migration.6_to_7.enabled: true
+
